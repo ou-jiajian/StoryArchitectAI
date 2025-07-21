@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Story Architect AI - My Projects</title>
+    <title>故事架构师 AI - 我的项目</title>
     <style>
         :root {
             --primary-color: #007bff; --primary-hover: #0056b3; --background-color: #f8f9fa;
@@ -13,175 +12,150 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--background-color); color: var(--text-color); }
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 30px; }
-        .header-left { display: flex; align-items: center; gap: 20px; }
         h1 { margin: 0; }
         .btn { background-color: var(--primary-color); color: white; border: none; border-radius: 5px; padding: 10px 20px; font-size: 16px; cursor: pointer; transition: background-color 0.2s; }
         .btn:hover { background-color: var(--primary-hover); }
         .btn-secondary { background-color: #6c757d; }
         .btn-secondary:hover { background-color: #5a6268; }
+        .btn-small { padding: 5px 10px; font-size: 12px; }
         .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
         .project-card { background: var(--card-background); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
         .project-card:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .project-card h3 { margin: 0 0 10px 0; }
-        .project-card p { font-size: 14px; color: #6c757d; margin: 0; }
-        .card-footer { margin-top: 20px; display: flex; justify-content: flex-end; }
-        .btn-delete { background: #dc3545; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 30px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 8px; position: relative; }
-        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; position: absolute; top: 10px; right: 20px;}
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; }
-        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 30px; border: 1px solid #888; width: 90%; max-width: 800px; border-radius: 8px; position: relative; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .status-bar { text-align: center; padding: 10px; background-color: var(--light-gray); border-radius: 5px; margin-bottom: 20px; }
+        .outline-list { list-style-type: none; padding-left: 20px; }
+        .outline-item { margin-bottom: 15px; border-left: 3px solid var(--light-gray); padding-left: 15px; }
+        .outline-item h4 { margin: 0 0 5px 0; }
+        .outline-item p { margin: 0 0 10px 0; color: #666; }
+        .analysis-result { background-color: #eef; border: 1px solid #cce; border-radius: 4px; padding: 10px; margin-top: 10px; font-size: 14px; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="header">
-            <div class="header-left">
-                <h1>My Stories</h1>
-                <button class="btn" onclick="openCreateModal()">+ New Story</button>
+            <h1>我的故事</h1>
+            <div>
+                <button class="btn" onclick="openModal(document.getElementById('create-modal'))">+ 新建故事</button>
+                <button class="btn btn-secondary" onclick="openModal(document.getElementById('settings-modal'))">设置</button>
             </div>
-            <button class="btn btn-secondary" onclick="openSettingsModal()">Settings</button>
         </div>
-        <div id="status-bar" class="status-bar">Loading settings...</div>
-        <div id="project-grid" class="project-grid"></div>
+        <div id="status-bar"></div>
+        <div id="project-grid"></div>
     </div>
 
-    <!-- Modals (Create, View, Settings) -->
-    <div id="create-modal" class="modal"><!-- ... create form ... --></div>
-    <div id="view-modal" class="modal"><!-- ... view outline ... --></div>
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeSettingsModal()">&times;</span>
-            <h2>AI Provider Settings</h2>
-            <form id="settings-form">
-                <div class="input-group">
-                    <label for="provider">AI Provider</label>
-                    <select id="provider">
-                        <option value="google">Google (Gemini)</option>
-                        <option value="openai">OpenAI (GPT)</option>
-                        <option value="anthropic">Anthropic (Claude)</option>
-                        <option value="zhipu" disabled>Zhipu (GLM) - Coming Soon</option>
-                        <option value="moonshot" disabled>Moonshot - Coming Soon</option>
-                        <option value="baidu" disabled>Baidu (ERNIE) - Coming Soon</option>
-                        <option value="alibaba" disabled>Alibaba (Qwen) - Coming Soon</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="api-key">API Key</label>
-                    <input type="password" id="api-key" placeholder="Enter your API key here">
-                </div>
-                <button type="submit" class="btn">Save Settings</button>
-            </form>
-        </div>
-    </div>
+    <!-- Modals -->
+    <div id="create-modal" class="modal"></div>
+    <div id="view-modal" class="modal"></div>
+    <div id="settings-modal" class="modal"></div>
 
     <script>
         const API_BASE_URL = 'http://127.0.0.1:8000';
-
-        // --- DOM Elements ---
-        const projectGrid = document.getElementById('project-grid');
-        const createModal = document.getElementById('create-modal');
-        const viewModal = document.getElementById('view-modal');
-        const settingsModal = document.getElementById('settings-modal');
-        const settingsForm = document.getElementById('settings-form');
-        const providerSelect = document.getElementById('provider');
-        const apiKeyInput = document.getElementById('api-key');
-        const statusBar = document.getElementById('status-bar');
-
         let settings = {};
 
         // --- Modal Controls ---
         const openModal = (modal) => { modal.style.display = 'block'; };
         const closeModal = (modal) => { modal.style.display = 'none'; };
-        const openCreateModal = () => openModal(createModal);
-        const closeCreateModal = () => closeModal(createModal);
-        const openViewModal = () => openModal(viewModal);
-        const closeViewModal = () => closeModal(viewModal);
-        const openSettingsModal = () => openModal(settingsModal);
-        const closeSettingsModal = () => closeModal(settingsModal);
-
         window.onclick = (event) => {
-            if (event.target == createModal) closeCreateModal();
-            if (event.target == viewModal) closeViewModal();
-            if (event.target == settingsModal) closeSettingsModal();
+            if (event.target.classList.contains('modal')) {
+                closeModal(event.target);
+            }
         };
 
         // --- Settings Management ---
-        function saveSettings() {
-            const provider = providerSelect.value;
-            const apiKey = apiKeyInput.value;
-            if (!apiKey) {
-                alert('API Key cannot be empty.');
-                return;
-            }
+        function saveSettings(event) {
+            event.preventDefault();
+            const form = event.target;
+            const provider = form.querySelector('#provider').value;
+            const apiKey = form.querySelector('#api-key').value;
+            if (!apiKey) { alert('API 密钥不能为空。'); return; }
             localStorage.setItem('ai_settings', JSON.stringify({ provider, apiKey }));
             loadSettings();
-            closeSettingsModal();
+            closeModal(document.getElementById('settings-modal'));
         }
 
         function loadSettings() {
+            const statusBar = document.getElementById('status-bar');
             const saved = localStorage.getItem('ai_settings');
             if (saved) {
                 settings = JSON.parse(saved);
-                providerSelect.value = settings.provider;
-                apiKeyInput.value = settings.apiKey;
-                statusBar.innerHTML = `&#128274; Using AI Provider: <strong>${settings.provider.toUpperCase()}</strong>. API Key is set.`;
+                const providerSelect = document.getElementById('provider');
+                if(providerSelect) providerSelect.value = settings.provider;
+                const apiKeyInput = document.getElementById('api-key');
+                if(apiKeyInput) apiKeyInput.value = settings.apiKey;
+                statusBar.innerHTML = '&#128274; 当前 AI 提供商: <strong>' + settings.provider.toUpperCase() + '</strong>';
                 statusBar.style.color = '#28a745';
             } else {
-                statusBar.innerHTML = `&#9888; AI Provider not configured. Please go to <strong>Settings</strong>.`;
+                statusBar.innerHTML = '&#9888; AI 提供商未配置，请前往 <strong>设置</strong>。';
                 statusBar.style.color = '#dc3545';
             }
         }
 
-        settingsForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            saveSettings();
-        });
-
         // --- Core API & Rendering Logic ---
         async function fetchProjects() {
+            const projectGrid = document.getElementById('project-grid');
             try {
                 const response = await fetch(`${API_BASE_URL}/api/projects`);
-                if (!response.ok) throw new Error('Failed to fetch projects');
+                if (!response.ok) throw new Error('获取项目列表失败');
                 const projects = await response.json();
-                renderProjects(projects);
+                projectGrid.innerHTML = '';
+                if (projects.length === 0) {
+                    projectGrid.innerHTML = `<p>还没有故事，点击“新建故事”开始创作吧！</p>`;
+                    return;
+                }
+                projects.forEach(project => {
+                    const card = document.createElement('div');
+                    card.className = 'project-card';
+                    card.onclick = () => viewProject(project.id);
+                    card.innerHTML = `
+                        <h3>${project.title}</h3>
+                        <p>创建于: ${new Date(project.created_at).toLocaleDateString()}</p>
+                        <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                            <button class="btn-delete" onclick="deleteProject('${project.id}', event)">删除</button>
+                        </div>
+                    `;
+                    projectGrid.appendChild(card);
+                });
             } catch (error) {
                 projectGrid.innerHTML = `<p style="color: red;">${error.message}</p>`;
             }
         }
 
-        function renderProjects(projects) {
-            projectGrid.innerHTML = '';
-            if (projects.length === 0) {
-                projectGrid.innerHTML = `<p>No stories yet. Click '+ New Story' to begin!</p>`;
-                return;
-            }
-            projects.forEach(project => {
-                const card = document.createElement('div');
-                card.className = 'project-card';
-                card.onclick = () => viewProject(project.id);
-                card.innerHTML = `
-                    <h3>${project.title}</h3>
-                    <p>Created: ${new Date(project.created_at).toLocaleDateString()}</p>
-                    <div class="card-footer">
-                        <button class="btn-delete" onclick="deleteProject('${project.id}', event)">Delete</button>
-                    </div>
-                `;
-                projectGrid.appendChild(card);
-            });
-        }
-
         async function viewProject(projectId) {
+            const viewModal = document.getElementById('view-modal');
             try {
                 const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`);
-                if (!response.ok) throw new Error('Failed to fetch project details');
+                if (!response.ok) throw new Error('获取项目详情失败');
                 const project = await response.json();
-                document.getElementById('view-title').innerText = project.title;
-                document.getElementById('view-outline').innerText = JSON.stringify(project.outline, null, 2);
-                openViewModal();
+                const viewContent = document.getElementById('view-content');
+                viewContent.innerHTML = `<h2>${project.title}</h2>`;
+                
+                const outlineContainer = document.createElement('div');
+                for (const actKey in project.outline.outline) {
+                    const act = project.outline.outline[actKey];
+                    const actElement = document.createElement('div');
+                    actElement.innerHTML = `<h3>${act.title}</h3>`;
+                    const chapterList = document.createElement('ul');
+                    chapterList.className = 'outline-list';
+                    act.chapters.forEach((chapter, index) => {
+                        const chapterId = `${project.id}-${actKey}-chap-${index}`;
+                        const chapterItem = document.createElement('li');
+                        chapterItem.className = 'outline-item';
+                        const chapterSummary = chapter.summary.replace(/'/g, "\'").replace(/"/g, '&quot;');
+                        chapterItem.innerHTML = `
+                            <h4>${chapter.title}</h4>
+                            <p>${chapter.summary}</p>
+                            <button class="btn btn-small" onclick="analyzeChapter('${chapterId}', \"${chapterSummary}\")">分析章节</button>
+                            <div id="analysis-${chapterId}" class="analysis-result" style="display:none;"></div>
+                        `;
+                        chapterList.appendChild(chapterItem);
+                    });
+                    actElement.appendChild(chapterList);
+                    outlineContainer.appendChild(actElement);
+                }
+                viewContent.appendChild(outlineContainer);
+                openModal(viewModal);
             } catch (error) {
                 alert(error.message);
             }
@@ -189,10 +163,10 @@
 
         async function deleteProject(projectId, event) {
             event.stopPropagation();
-            if (!confirm('Are you sure you want to delete this project?')) return;
+            if (!confirm('您确定要删除这个项目吗？此操作无法撤销。')) return;
             try {
                 const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`, { method: 'DELETE' });
-                if (!response.ok) throw new Error('Failed to delete project');
+                if (!response.ok) throw new Error('删除项目失败');
                 fetchProjects();
             } catch (error) {
                 alert(error.message);
@@ -202,7 +176,7 @@
         async function handleCreateFormSubmit(event) {
             event.preventDefault();
             if (!settings.apiKey) {
-                alert('Please configure your AI Provider in Settings first.');
+                alert('请先在“设置”中配置您的 AI 提供商和 API 密钥。');
                 return;
             }
             const form = event.target;
@@ -219,7 +193,7 @@
             };
             const submitBtn = form.querySelector('button');
             submitBtn.disabled = true;
-            submitBtn.innerText = 'Generating...';
+            submitBtn.innerText = '正在生成中...';
             try {
                 const response = await fetch(`${API_BASE_URL}/api/projects`, {
                     method: 'POST',
@@ -228,51 +202,98 @@
                 });
                 if (!response.ok) {
                     const err = await response.json();
-                    throw new Error(err.detail || 'Failed to create project');
+                    throw new Error(err.detail || '创建项目失败');
                 }
-                closeCreateModal();
+                closeModal(document.getElementById('create-modal'));
                 fetchProjects();
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                alert(`发生错误: ${error.message}`);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerText = 'Create & Generate Outline';
+                submitBtn.innerText = '创建并生成大纲';
                 form.reset();
+            }
+        }
+
+        async function analyzeChapter(chapterId, chapterText) {
+            if (!settings.apiKey) {
+                alert('请先在“设置”中配置您的 AI 提供商和 API 密钥。');
+                return;
+            }
+            const resultDiv = document.getElementById(`analysis-${chapterId}`);
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '正在分析中...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/analyze-chapter`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        chapter_text: chapterText, 
+                        provider: settings.provider, 
+                        api_key: settings.apiKey 
+                    })
+                });
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || '分析失败');
+                }
+                const analysis = await response.json();
+                resultDiv.innerHTML = `
+                    <strong>摘要:</strong> ${analysis.summary}<br>
+                    <strong>出场人物:</strong> ${analysis.characters.join(', ')}
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<span style="color:red;">错误: ${error.message}</span>`;
             }
         }
 
         // --- Initial Load & Dynamic Content Setup ---
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Load settings first
-            loadSettings();
+            const createModal = document.getElementById('create-modal');
+            const viewModal = document.getElementById('view-modal');
+            const settingsModal = document.getElementById('settings-modal');
 
-            // 2. Fetch initial projects
-            fetchProjects();
-
-            // 3. Populate modals with their content and attach listeners
-            createModal.innerHTML = `
+            // Populate Modals
+            settingsModal.innerHTML = `
                 <div class="modal-content">
-                    <span class="close-btn" onclick="closeCreateModal()">&times;</span>
-                    <h2>Create a New Story</h2>
-                    <form id="create-form-dynamic">
-                        <div class="input-group"><label for="title">Title</label><input type="text" id="title" required placeholder="e.g., The Last Archivist"></div>
-                        <div class="input-group"><label for="genre">Genre</label><input type="text" id="genre" value="Sci-Fi"></div>
-                        <div class="input-group"><label for="theme">Theme</label><input type="text" id="theme" value="Humanity's place in the universe"></div>
-                        <div class="input-group"><label for="core_idea">Core Idea</label><textarea id="core_idea">An archivist discovers a forgotten message from an ancient alien race that changes everything.</textarea></div>
-                        <div class="input-group"><label for="style">Style</label><input type="text" id="style" value="Hopeful and wondrous"></div>
-                        <button type="submit" class="btn">Create & Generate Outline</button>
+                    <span class="close-btn" onclick="closeModal(settingsModal)">&times;</span>
+                    <h2>AI 提供商设置</h2>
+                    <form id="settings-form">
+                        <div class="input-group"><label for="provider">AI 提供商</label><select id="provider"><option value="google">Google (Gemini)</option><option value="openai">OpenAI (GPT)</option><option value="anthropic">Anthropic (Claude)</option><option value="zhipu" disabled>智谱 (GLM) - 即将支持</option></select></div>
+                        <div class="input-group"><label for="api-key">API 密钥</label><input type="password" id="api-key" placeholder="在此输入您的 API 密钥"></div>
+                        <button type="submit" class="btn">保存设置</button>
                     </form>
                 </div>
             `;
-            document.getElementById('create-form-dynamic').addEventListener('submit', handleCreateFormSubmit);
-
-            viewModal.innerHTML = `
+            createModal.innerHTML = `
                 <div class="modal-content">
-                     <span class="close-btn" onclick="closeViewModal()">&times;</span>
-                     <h2 id="view-title"></h2>
-                     <pre id="view-outline" style="white-space: pre-wrap; word-wrap: break-word; background: #f4f4f4; padding: 15px; border-radius: 5px;"></pre>
+                    <span class="close-btn" onclick="closeModal(createModal)">&times;</span>
+                    <h2>创建新故事</h2>
+                    <form id="create-form-dynamic">
+                        <div class="input-group"><label for="title">标题</label><input type="text" id="title" required placeholder="例如：最后的档案管理员"></div>
+                        <div class="input-group"><label for="genre">类型</label><input type="text" id="genre" value="科幻"></div>
+                        <div class="input-group"><label for="theme">主题</label><input type="text" id="theme" value="人性在宇宙中的位置"></div>
+                        <div class="input-group"><label for="core_idea">核心创意</label><textarea id="core_idea">一位档案管理员发现了一条被遗忘的远古外星信息，它改变了一切。</textarea></div>
+                        <div class="input-group"><label for="style">风格</label><input type="text" id="style" value="充满希望与奇迹"></div>
+                        <button type="submit" class="btn">创建并生成大纲</button>
+                    </form>
                 </div>
             `;
+            viewModal.innerHTML = `
+                <div class="modal-content">
+                     <span class="close-btn" onclick="closeModal(viewModal)">&times;</span>
+                     <div id="view-content"></div>
+                </div>
+            `;
+
+            // Attach Listeners
+            document.getElementById('settings-form').addEventListener('submit', saveSettings);
+            document.getElementById('create-form-dynamic').addEventListener('submit', handleCreateFormSubmit);
+
+            // Initial Load
+            loadSettings();
+            fetchProjects();
         });
     </script>
 </body>
